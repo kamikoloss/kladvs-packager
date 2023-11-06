@@ -26,6 +26,29 @@ const getScrapboxPages = async () => {
   }
 }
 
+// リソースファイルの URL を抽出する
+// [ { title: ページ名, main: ページ1行目のURL, sub: ページ2行目のURL }, ... ]
+const getUrlList = (pages) => {
+  const bracketRegExp = /\[|\]/g
+  const titleRegExp = /ch\s|bg\s|img\s|bgm\s|se\s|vi\s|vo\s/g
+  const urlRegExp = /files|gyazo/
+  const urlList = []
+
+  pages.forEach(page => {
+    const hasMain = Boolean(page.description[0])
+    const hasSub = Boolean(page.descriptions[1]) && urlRegExp.test(page.descriptions[1])
+    if (page.descriptions[0] && titleRegExp.test(page.title)) {
+      urlList.push({
+        title: page.title.replace(/\s/g, '_'),
+        main: hasMain ? page.descriptions[0].replace(bracketRegExp, '') : '',
+        sub: hasSub ? page.descriptions[1].replace(bracketRegExp, '') : '',
+      })
+    }
+  })
+  console.log(urlList)
+  return urlList
+}
+
 // メイン処理
 createApiInstance()
 const pages = await getScrapboxPages()
